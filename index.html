@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Management System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .col {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button.checkout {
+      background-color: #e74c3c;
+      margin-left: 10px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .occupied {
+      color: red;
+      font-weight: bold;
+    }
+
+    .available {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hotel Management System</h1>
+
+    <button onclick="toggleCheckInForm()">Check-In</button>
+    <button class="checkout" onclick="checkOut()">Check-Out</button>
+      <button class="checkout" onclick="CompanyDetails()">Company Details</button>
+
+
+    <div id="modal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%);
+    background:white; padding:20px; border:1px solid #ccc; box-shadow:0 0 10px rgba(0,0,0,0.2); z-index:1000;">
+      <h3 id="modalTitle"></h3>
+      <div id="modalContent"></div>
+      <button onclick="closeModal()">Close</button>
+    </div>
+
+    <div id="checkInForm" style="display:none; margin-top:20px;">
+     <div class="row"> <div class="col form-group"> <label>Room Number</label> <select id="roomNumber" required> <option value="">-- Select Room --</option> <option value="premium / 101">premium / 101</option> <option value="premium / 102">premium / 102</option> <option value="premium / 103">premium / 103</option> <option value="premium / 201">premium / 201</option> <option value="premium / 202">premium / 202</option> <option value="premium / 203">premium / 203</option> <option value="premium / 301">premium / 301</option> <option value="premium / 302">premium / 302</option> <option value="premium / 303">premium / 303</option> <option value="classic / 104">classic / 104</option> <option value="classic / 105">classic / 105</option> <option value="classic / 204">classic / 204</option> <option value="classic / 205">classic / 205</option> <option value="classic / 304">classic / 304</option> <option value="classic / 305">classic / 305</option> <option value="classic / 403">classic / 403</option> <option value="classic / 404">classic / 404</option> <option value="suite / 401">suite / 401</option> <option value="suite / 402">suite / 402</option> <option value="suite / 501">suite / 501</option> </select> </div>
+
+        <div class="col form-group">
+          <label>Guest Name</label>
+          <select id="title" required>
+            <option value="Mr.">Mr.</option>
+            <option value="Mrs.">Mrs.</option>
+            <option value="Miss">Miss</option>
+            <option value="Ms.">Ms.</option>
+            <option value="Dr.">Dr.</option>
+          </select>
+          <input type="text" id="guestName" placeholder="Full Name" required />
+        </div>
+
+        <div class="col form-group">
+          <label>Mobile Number</label>
+          <input type="text" id="mobile" placeholder="Enter mobile number" />
+        </div>
+
+        <div class="col form-group">
+          <label>Address</label>
+          <input type="text" id="address" placeholder="Enter address" />
+        </div>
+
+        <div class="col form-group">
+          <label>No. of Persons</label>
+          <input type="number" id="persons" placeholder="Number of persons" />
+        </div>
+
+        <div class="col form-group">
+          <label>Tariff</label>
+          <input type="number" id="tariff" placeholder="Tariff amount" />
+        </div>
+
+        <div class="col form-group">
+  <label>Company Name</label>
+  <select id="company">
+    <option value="">-- Select Company --</option>
+  </select>
+</div>
+
+<div class="col form-group">
+  <label>GST Number</label>
+  <input type="text" id="gst" placeholder="GST number" readonly />
+</div>
+        <div class="col form-group">
+          <label>Payment Method</label>
+          <select id="payment">
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="submitCheckIn()">Submit Check-In</button>
+    </div>
+
+    <div style="margin-top:20px;">
+      <label for="checkoutRoomNumber">Enter Room Number for Check-Out</label>
+      <input type="text" id="checkoutRoomNumber" placeholder="Room number" />
+    </div>
+
+    <table>
+      <thead>
+  <tr>
+    <th>Room Number</th>
+    <th>Guest</th>
+    <th>Mobile</th>
+    <th>Address</th>
+    <th>Persons</th>
+    <th>Tariff</th>
+    <th>Stay Days</th>
+    <th>Company</th>
+    <th>GST</th>
+    <th>Payment</th>
+    <th>Check-In Time</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+
+      <tbody id="roomList"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let rooms = JSON.parse(localStorage.getItem('rooms')) || {};
+    function CompanyDetails(){
+      window.location.href="Company.html";
+    }
+    // Default company data if not present
+    
+
+  let companyDetails = JSON.parse(localStorage.getItem("companyDetails")) || defaultCompanyDetails;
+localStorage.setItem("companyDetails", JSON.stringify(companyDetails));
+
+
+    function saveToStorage() {
+      localStorage.setItem('rooms', JSON.stringify(rooms));
+    }
+
+    function toggleCheckInForm() {
+      const form = document.getElementById("checkInForm");
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+
+    function getCurrentDateTime() {
+      return new Date().toLocaleString();
+    }
+
+    function submitCheckIn() {
+  const title = document.getElementById("title").value;
+  const guestNameInput = document.getElementById("guestName").value.trim();
+  const guestName = `${title} ${guestNameInput}`;
+  const roomNumber = document.getElementById("roomNumber").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const persons = document.getElementById("persons").value.trim();
+  const tariff = document.getElementById("tariff").value.trim();
+  const companyName = document.getElementById("company").value.trim();
+  const gst = document.getElementById("gst").value.trim();
+  const stayDays = document.getElementById("stayDays").value.trim();
+  const payment = document.getElementById("payment").value;
+  const checkinTime = getCurrentDateTime();
+
+  if (!guestName || !roomNumber || !mobile || !address || !persons || !tariff || !stayDays) {
+    alert("Please fill out all required fields.");
+    return;
+  }
+
+  if (rooms[roomNumber]) {
+    alert("Room is already occupied.");
+    return;
+  }
+
+  const company = companyName
+    ? { name: companyName, gst: gst || "", contact: companyDetails[companyName]?.contact || "" }
+    : "";
+
+  rooms[roomNumber] = {
+    guestName,
+    mobile,
+    address,
+    persons,
+    tariff,
+    company,
+    gst,
+    stayDays,
+    payment,
+    checkinTime
+  };
+
+  saveToStorage();
+  updateRoomList();
+
+  document.querySelectorAll("#checkInForm input, #checkInForm select").forEach(input => input.value = "");
+  document.getElementById("checkInForm").style.display = "none";
+}
+
+    function checkOut() {
+      const roomNumber = document.getElementById("checkoutRoomNumber").value.trim();
+      if (!roomNumber || !rooms[roomNumber]) {
+        alert("Room is already available or invalid.");
+        return;
+      }
+      delete rooms[roomNumber];
+      saveToStorage();
+      updateRoomList();
+      document.getElementById("checkoutRoomNumber").value = "";
+    }
+
+    function updateRoomList() {
+      const roomList = document.getElementById("roomList");
+      roomList.innerHTML = "";
+
+      for (const room in rooms) {
+        const data = rooms[room];
+        const companyDisplay = typeof data.company === "object"
+          ? `${data.company.name} (GST: ${data.company.gst}, Contact: ${data.company.contact})`
+          : data.company || "-";
+
+        const row = document.createElement("tr");
+row.innerHTML = `
+  <td>${room}</td>
+  <td>${data.guestName}</td>
+  <td>${data.mobile}</td>
+  <td>${data.address}</td>
+  <td>${data.persons}</td>
+  <td>${data.tariff}</td>
+  <td>${data.stayDays || '-'}</td>
+  <td>${data.company?.name || '-'}</td>
+  <td>${data.company?.gst || '-'}</td>
+  <td>${data.payment || '-'}</td>
+  <td>${data.checkinTime || '-'}</td>
+  <td class="occupied">Occupied</td>
+  <td>
+    <button onclick="openPaymentModal('${room}')">💰 Payment</button>
+    <button onclick="openCompanyModal('${room}')">🏢 Company</button>
+  </td>
+`;
+
+        roomList.appendChild(row);
+      }
+    }
+
+    function openPaymentModal(room) {
+      const data = rooms[room];
+      const modal = document.getElementById('modal');
+      const content = `
+        <label>Payment Method:</label>
+        <select id="paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Card">Card</option>
+        </select>
+        <br/><br/>
+        <label>Amount:</label>
+        <input type="number" id="paymentAmount" value="${data.tariff}" />
+        <br/><br/>
+        <button onclick="savePayment('${room}')">Save Payment</button>
+      `;
+
+      document.getElementById('modalTitle').textContent = `Payment for Room ${room}`;
+      document.getElementById('modalContent').innerHTML = content;
+      modal.style.display = 'block';
+    }
+
+    function savePayment(room) {
+      const method = document.getElementById('paymentMethod').value;
+      const amount = document.getElementById('paymentAmount').value;
+      rooms[room].payment = `${method} - ₹${amount}`;
+      saveToStorage();
+      updateRoomList();
+      closeModal();
+    }
+
+    function openCompanyModal(room) {
+      const data = rooms[room];
+      const modal = document.getElementById('modal');
+      let options = `<option value="">-- Select Company --</option>`;
+
+      for (const company in companyDetails) {
+        const selected = data.company && typeof data.company === "object" && data.company.name === company ? "selected" : "";
+        options += `<option value="${company}" ${selected}>${company}</option>`;
+      }
+
+      const content = `
+        <label>Company Name</label>
+        <select id="companySelect" onchange="displayCompanyDetails()">${options}</select>
+        <br/><br/>
+        <label>GST Number</label>
+        <input type="text" id="gstNumber" readonly />
+        <br/><br/>
+        <label>Company Contact</label>
+        <input type="text" id="companyContact" readonly />
+        <br/><br/>
+        <button onclick="saveCompany('${room}')">Save Company</button>
+      `;
+
+      document.getElementById('modalTitle').textContent = `Company for Room ${room}`;
+      document.getElementById('modalContent').innerHTML = content;
+      modal.style.display = 'block';
+
+      if (data.company && typeof data.company === "object") {
+        document.getElementById('companySelect').value = data.company.name;
+        displayCompanyDetails();
+      }
+    }
+
+    function displayCompanyDetails() {
+      const selected = document.getElementById('companySelect').value;
+      const company = companyDetails[selected];
+      if (company) {
+        document.getElementById('gstNumber').value = company.gst;
+        document.getElementById('companyContact').value = company.contact;
+      } else {
+        document.getElementById('gstNumber').value = "";
+        document.getElementById('companyContact').value = "";
+      }
+    }
+
+    function saveCompany(room) {
+      const name = document.getElementById('companySelect').value;
+      if (!name) {
+        alert("Please select a company.");
+        return;
+      }
+      const company = companyDetails[name];
+      rooms[room].company = { name, gst: company.gst, contact: company.contact };
+      saveToStorage();
+      updateRoomList();
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    window.onload = () => {
+  updateRoomList();
+
+  const companySelect = document.getElementById("company");
+  for (const name in companyDetails) {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    companySelect.appendChild(option);
+  }
+
+  companySelect.addEventListener("change", () => {
+    const selected = companySelect.value;
+    document.getElementById("gst").value =
+      selected && companyDetails[selected] ? companyDetails[selected].gst : "";
+  });
+};
+
+
+  </script>
+</body>
+</html>
