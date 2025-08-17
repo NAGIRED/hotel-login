@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Company Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      padding: 30px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+      color: #34495e;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #2980b9;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #1c5980;
+    }
+    .company-list {
+      margin-top: 30px;
+    }
+    .company-item {
+      background: white;
+      padding: 12px 15px;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .company-item strong {
+      color: #2980b9;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: #e74c3c;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Company Details</h2>
+
+  <label for="companyName">Company Name *</label>
+  <input type="text" id="companyName" placeholder="Enter company name" required />
+
+  <label for="gstNumber">GST Number</label>
+  <input type="text" id="gstNumber" placeholder="Enter GST number" />
+
+  <label for="companyContact">Contact Number</label>
+  <input type="text" id="companyContact" placeholder="Enter contact number" />
+
+  <button onclick="saveCompany()">Save Company</button>
+ <button onclick="back()">back</button>
+
+  <div class="company-list" id="companyList"></div>
+
+  <script>
+    let companyDetails = JSON.parse(localStorage.getItem('companyDetails')) || {};
+    function back(){
+      window.location.href="home.html";
+    }
+    window.onload = () => {
+      displayCompanies();
+    };
+
+    function saveCompany() {
+      const name = document.getElementById('companyName').value.trim();
+      const gst = document.getElementById('gstNumber').value.trim();
+      const contact = document.getElementById('companyContact').value.trim();
+
+      if (!name) {
+        alert('Company name is required.');
+        return;
+      }
+
+      if (companyDetails[name]) {
+        alert('Company already exists.');
+        return;
+      }
+
+      companyDetails[name] = { gst, contact };
+      localStorage.setItem('companyDetails', JSON.stringify(companyDetails));
+
+      alert('✅ Company saved successfully!');
+
+      document.getElementById('companyName').value = '';
+      document.getElementById('gstNumber').value = '';
+      document.getElementById('companyContact').value = '';
+
+      displayCompanies();
+    }
+
+    function deleteCompany(name) {
+      if (confirm(`Are you sure you want to delete "${name}"?`)) {
+        delete companyDetails[name];
+        localStorage.setItem('companyDetails', JSON.stringify(companyDetails));
+        displayCompanies();
+      }
+    }
+
+    function displayCompanies() {
+      const listEl = document.getElementById('companyList');
+      listEl.innerHTML = '';
+
+      const names = Object.keys(companyDetails);
+
+      if (names.length === 0) {
+        listEl.innerHTML = '<p>No companies saved yet.</p>';
+        return;
+      }
+
+      names.forEach(name => {
+        const data = companyDetails[name];
+        const div = document.createElement('div');
+        div.className = 'company-item';
+        div.innerHTML = `
+          <p><strong>Company:</strong> ${name}</p>
+          <p><strong>GST No:</strong> ${data.gst || '-'}</p>
+          <p><strong>Contact:</strong> ${data.contact || '-'}</p>
+           
+        `;
+        listEl.appendChild(div);
+      });
+    }
+  </script>
+
+</body>
+</html>
